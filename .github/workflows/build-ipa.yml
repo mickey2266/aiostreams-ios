@@ -77,19 +77,10 @@ jobs:
       - name: Build the iOS IPA
         run: scripts/make-ipa.sh ios
 
-      - name: Build the tvOS IPA
-        run: scripts/make-ipa.sh tvos
-
       - uses: actions/upload-artifact@v4
         with:
           name: AIOStreams-ipa
           path: build/AIOStreams.ipa
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: AIOStreams-tvOS-ipa
-          path: build/AIOStreams-tvOS.ipa
           if-no-files-found: error
 
       - name: Attach to the release
@@ -97,14 +88,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # A release's IPAs must carry its version.
+          # A release's IPA must carry its version.
           built=$(cat build/version.txt)
           if [ "$built" != "${GITHUB_REF_NAME#v}" ]; then
             echo "built $built for $GITHUB_REF_NAME" >&2
             exit 1
           fi
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Unsigned IPAs. Sign them when you install them."
-          gh release upload "$GITHUB_REF_NAME" build/AIOStreams.ipa build/AIOStreams-tvOS.ipa --clobber
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Unsigned IPA. Sign it when you install them."
+          gh release upload "$GITHUB_REF_NAME" build/AIOStreams.ipa --clobber
           # The AltStore / SideStore source, every release's IPA in it, on each release so
           # releases/latest/download/altstore.json is always the newest.
           gh api "repos/$GITHUB_REPOSITORY/releases" --paginate > build/releases.json
