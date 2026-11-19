@@ -77,10 +77,11 @@ jobs:
       - name: Build the iOS IPA
         run: scripts/make-ipa.sh ios
 
-      - uses: actions/upload-artifact@v4
+      # The IPA itself rather than a zip around it; unzipped, the file's name is the artifact's.
+      - uses: actions/upload-artifact@v7
         with:
-          name: AIOStreams-ipa
           path: build/AIOStreams.ipa
+          archive: false
           if-no-files-found: error
 
       - name: Attach to the release
@@ -94,7 +95,7 @@ jobs:
             echo "built $built for $GITHUB_REF_NAME" >&2
             exit 1
           fi
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Unsigned IPA. Sign it when you install them."
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Unsigned IPA. Sign it when you install it."
           gh release upload "$GITHUB_REF_NAME" build/AIOStreams.ipa --clobber
           # The AltStore / SideStore source, every release's IPA in it, on each release so
           # releases/latest/download/altstore.json is always the newest.
