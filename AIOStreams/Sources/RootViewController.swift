@@ -18,6 +18,7 @@ final class RootViewController: UIViewController, WKNavigationDelegate, WKUIDele
     private let stats = StatsLabel()
     private let levels = Levels()
     private let bridge = Bridge()
+    private let hapticGenerator = UIImpactFeedbackGenerator(style: .medium)
     private var webView: WKWebView!
     private var player: PlayerChannel!
     private var pictureInPicture: PictureInPicture!
@@ -305,6 +306,9 @@ final class RootViewController: UIViewController, WKNavigationDelegate, WKUIDele
             bridge.send(levels.reading)
         case "set-level":
             levels.set(message["level"] as? String, JSON.number(message["value"]))
+        case "haptic":
+            hapticGenerator.impactOccurred()
+            hapticGenerator.prepare()
         case "exit", "open-logs", "player-key", "window-buttons", "discord-check", "external-choose",
              "external-open", "external-close", "watch-next", "keyboard-completions", "player-engine",
              "player-retry", "crash-seen", "voice-search", "voice-cancel":

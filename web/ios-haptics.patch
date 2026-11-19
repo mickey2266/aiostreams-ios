@@ -1,0 +1,59 @@
+diff --git a/packages/web/src/components/media/item-menu.tsx b/packages/web/src/components/media/item-menu.tsx
+index 6a9ae0727..4e563d211 100644
+--- a/packages/web/src/components/media/item-menu.tsx
++++ b/packages/web/src/components/media/item-menu.tsx
+@@ -54,6 +54,7 @@ import { useCardPreview } from './card-preview';
+ import { useArtTarget } from '@/lib/artwork/background';
+ import { openAddToPlaylist } from '@/features/playlists/playlists';
+ import { playable as canPlay } from '@/lib/playlists';
++import { haptic } from '@/lib/hosts/shell/bridge';
+ import { usingKeys } from '@/lib/input';
+ import type { BaseItemDto } from '@/lib/jellyfin/types';
+ 
+@@ -249,7 +250,11 @@ export function ItemMenu({
+         const card = e.currentTarget;
+         const at = { clientX: e.clientX, clientY: e.clientY };
+         pressTimer = window.setTimeout(
+-          () => card.isConnected && open(target, at, card),
++          () => {
++            if (!card.isConnected) return;
++            haptic();
++            open(target, at, card);
++          },
+           700
+         );
+       }}
+diff --git a/packages/web/src/hooks/use-hold.ts b/packages/web/src/hooks/use-hold.ts
+index c89b8152a..27f3095b6 100644
+--- a/packages/web/src/hooks/use-hold.ts
++++ b/packages/web/src/hooks/use-hold.ts
+@@ -1,4 +1,5 @@
+ import React from 'react';
++import { haptic } from '@/lib/hosts/shell/bridge';
+ import { usingKeys } from '@/lib/input';
+ 
+ const HOLD_MS = 500;
+@@ -26,6 +27,7 @@ export function useHold(
+       cancel();
+       timer.current = setTimeout(() => {
+         held.current = true;
++        haptic();
+         latest.current?.();
+       }, HOLD_MS);
+     },
+diff --git a/packages/web/src/lib/hosts/shell/bridge.ts b/packages/web/src/lib/hosts/shell/bridge.ts
+index e83de7ec3..a51953dfe 100644
+--- a/packages/web/src/lib/hosts/shell/bridge.ts
++++ b/packages/web/src/lib/hosts/shell/bridge.ts
+@@ -229,6 +229,11 @@ export function appLog(level: 'info' | 'warn', message: string): void {
+   else console[level](message);
+ }
+ 
++/** A tap of haptic feedback where the app can give one: the iOS app. */
++export function haptic(): void {
++  const bridge = appBridge();
++  if (bridge?.platform === 'ios') bridge.send({ type: 'haptic' });
++}
+ export type ShellAnswer<T extends ShellMessage['type']> = Extract<
+   ShellMessage,
+   { type: T }

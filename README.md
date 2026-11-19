@@ -38,7 +38,7 @@ The screenshots come from Apple's simulators connected to a demo server with a m
 It follows the design of the official Android and desktop apps, which are a web view over a native player. Their source is public under AGPL-3.0, so this port builds from that source rather than from the APK.
 
 - The page is AIOStreams' own web app (`packages/web`, standalone build). It draws every screen and the player's controls.
-- The page talks to the app through `window.aiostreamsApp`, the same bridge (protocol 2) the Android and desktop apps use. The page itself is almost unchanged: `web/ios-host.patch` adds one small host (`platform: 'ios'`) so the page knows it's on iOS.
+- The page talks to the app through `window.aiostreamsApp`, the same bridge (protocol 2) the Android and desktop apps use. The page itself is almost unchanged: `web/ios-host.patch` adds one small host (`platform: 'ios'`) so the page knows it's on iOS, and `web/ios-haptics.patch` asks the app for a haptic tap on press-and-hold actions.
 - The video is drawn by AetherEngine beneath a transparent `WKWebView`. AetherEngine replaces mpv and ExoPlayer and brings FFmpeg demuxing, VideoToolbox and dav1d decoding, HDR10, HDR10+, Dolby Vision and HLG, and Atmos.
 - The engine leaves subtitle drawing to the app. A native layer between the video and the page draws them, in the style chosen in the page's subtitle settings.
 
@@ -127,7 +127,7 @@ Not in the Apple TV app yet: Live TV reminders, and playing earlier programmes f
 
 ## Updating
 
-`web/AIOSTREAMS_REF` pins the AIOStreams commit the web app is built from, so the patch applies cleanly. To move to a newer one, change it and check that `git apply` of `web/ios-host.patch` still succeeds. If it doesn't, regenerate the patch. `project.yml` pins AetherEngine to an exact version.
+`web/AIOSTREAMS_REF` pins the AIOStreams commit the web app is built from, so the patch applies cleanly. To move to a newer one, change it and check that `git apply` of `web/ios-host.patch` and then `web/ios-haptics.patch` still succeeds. If it doesn't, regenerate the patch. `project.yml` pins AetherEngine to an exact version.
 
 ## Optional AetherEngine components
 

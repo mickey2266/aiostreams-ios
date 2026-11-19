@@ -20,6 +20,7 @@ git -C "$src" fetch --depth 1 origin "$ref"
 git -C "$src" checkout --force FETCH_HEAD
 git -C "$src" clean -fdq packages/web/src
 git -C "$src" apply --3way "$here/web/ios-host.patch"
+git -C "$src" apply --3way "$here/web/ios-haptics.patch"
 
 (
   cd "$src"
