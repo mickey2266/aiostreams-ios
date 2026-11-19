@@ -33,6 +33,11 @@ if [ -z "${APP_VERSION:-}" ]; then
     || git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
   APP_VERSION="${tag#v}"
 fi
+# No release tag at all, as in a fork that didn't bring them: project.yml's version.
+if [ -z "${APP_VERSION:-}" ]; then
+  APP_VERSION=$(sed -n 's/^ *MARKETING_VERSION: *"\{0,1\}\([0-9.]*\)"\{0,1\} *$/\1/p' project.yml | head -n 1)
+  [ -z "$APP_VERSION" ] || echo "no v* tag: version $APP_VERSION from project.yml" >&2
+fi
 if [ -z "${BUILD_NUMBER:-}" ]; then
   if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
     echo "a shallow clone can't count its commits: fetch the full history or set BUILD_NUMBER" >&2
